@@ -2,104 +2,156 @@
 -- CREATE DATABASE LibraryManagement;
 
 
-CREATE TABLE employee(
-	empId CHAR(16) DEFAULT substr(md5(random()::text), 1, 16) PRIMARY KEY,
-	empName VARCHAR(255) NOT NULL, 
-	dob DATE,
-	phoneNumber char(11) NOT NULL UNIQUE,
-	pwd VARCHAR(255) NOT NULL,
-	gender VARCHAR(10),
-	isBlock boolean DEFAULT FALSE
+-- Tạo cơ sở dữ liệu
+CREATE DATABASE LibraryManagement;
+
+-- Chuyển sang cơ sở dữ liệu mới
+\c LibraryManagement;
+
+-- Bảng Quản Trị Viên
+CREATE TABLE employee (
+    empId CHAR(16) DEFAULT substr(md5(random()::text), 1, 16) PRIMARY KEY,
+    empName VARCHAR(255) NOT NULL,
+    dob DATE,
+    phoneNumber CHAR(11) NOT NULL UNIQUE,
+    pwd VARCHAR(255) NOT NULL,
+    gender VARCHAR(10),
+    isBlock BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE member(
-	memberId CHAR(16) DEFAULT substr(md5(random()::text), 1, 16) PRIMARY KEY,
-	memberName VARCHAR(255) NOT NULL, 
-	dob DATE,
-	phoneNumber char(11) UNIQUE,
-	gender VARCHAR(10)
+-- Bảng Độc Giả
+CREATE TABLE member (
+    memberId CHAR(16) DEFAULT substr(md5(random()::text), 1, 16) PRIMARY KEY,
+    memberName VARCHAR(255) NOT NULL,
+    dob DATE,
+    phoneNumber CHAR(11) UNIQUE,
+    gender VARCHAR(10),
+    card_creation_date DATE,
+    card_expiry_date DATE
 );
 
-CREATE TABLE administrator(
-	adminId CHAR(16) DEFAULT substr(md5(random()::text), 1, 16) PRIMARY KEY,
-	adminName VARCHAR(255) NOT NULL, 
-	dob DATE,
-	phoneNumber char(11) UNIQUE,
-	pwd VARCHAR(255),
-	gender VARCHAR(10)
+-- Bảng Quản Trị Viên (Administrator)
+CREATE TABLE administrator (
+    adminId CHAR(16) DEFAULT substr(md5(random()::text), 1, 16) PRIMARY KEY,
+    adminName VARCHAR(255) NOT NULL,
+    dob DATE,
+    phoneNumber CHAR(11) UNIQUE,
+    pwd VARCHAR(255),
+    gender VARCHAR(10)
 );
 
+-- Bảng Tác Giả
 CREATE TABLE author (
-	authorId CHAR(16) DEFAULT substr(md5(random()::text), 1, 16) PRIMARY KEY,
-	authorName varchar(255) NOT NULL,
-	gender VARCHAR(10),
-	isHide BOOLEAN DEFAULT FALSE
+    authorId CHAR(16) DEFAULT substr(md5(random()::text), 1, 16) PRIMARY KEY,
+    authorName VARCHAR(255) NOT NULL,
+    gender VARCHAR(10),
+    isHide BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE category(
-	genreId CHAR(3) DEFAULT substr(md5(random()::text), 1, 3) PRIMARY KEY,
-	genre varchar(64) NOT NULL
+-- Bảng Thể Loại
+CREATE TABLE category (
+    genreId CHAR(3) DEFAULT substr(md5(random()::text), 1, 3) PRIMARY KEY,
+    genre VARCHAR(64) NOT NULL
 );
 
-CREATE TABLE publisher(
-	publisherId CHAR(9) DEFAULT substr(md5(random()::text), 1, 9) PRIMARY KEY,
-	publisherName varchar(64) NOT NULL,
-	publisherAddress varchar(255),
-	isHide BOOLEAN DEFAULT FALSE
+-- Bảng Nhà Xuất Bản
+CREATE TABLE publisher (
+    publisherId CHAR(9) DEFAULT substr(md5(random()::text), 1, 9) PRIMARY KEY,
+    publisherName VARCHAR(64) NOT NULL,
+    publisherAddress VARCHAR(255),
+    isHide BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE sheet(
-	sheetId CHAR(14) DEFAULT substr(md5(random()::text), 1, 14) PRIMARY KEY,
-	responsible CHAR(16) NOT NULL,
-	importDate DATE NOT NULL,
-	totalCost FLOAT DEFAULT 0
+-- Bảng Phiếu Nhập (Để quản lý sách nhập vào thư viện)
+CREATE TABLE sheet (
+    sheetId CHAR(14) DEFAULT substr(md5(random()::text), 1, 14) PRIMARY KEY,
+    responsible CHAR(16) NOT NULL,
+    importDate DATE NOT NULL,
+    totalCost FLOAT DEFAULT 0
 );
 
-CREATE TABLE sheet_detail(
-	sheetId CHAR(14),
-	bookId CHAR(14),
-	quantity float,
-	importPrice FLOAT NOT NULL,
-	PRIMARY KEY (sheetId, bookId)
+-- Bảng Chi Tiết Phiếu Nhập (Chi tiết sách nhập)
+CREATE TABLE sheet_detail (
+    sheetId CHAR(14),
+    bookId CHAR(14),
+    quantity FLOAT,
+    importPrice FLOAT NOT NULL,
+    PRIMARY KEY (sheetId, bookId)
 );
 
-CREATE TABLE book(
-	bookId CHAR(14) DEFAULT substr(md5(random()::text), 1, 14) PRIMARY KEY,
-	bookEdition INT,
-	publisherId CHAR(9) NOT NULL,
-	title VARCHAR(128) NOT NULL,
-	salePrice FLOAT DEFAULT 0,
-	quantity INT DEFAULT 0,
-	isHide BOOLEAN DEFAULT FALSE
+-- Bảng Sách
+CREATE TABLE book (
+    bookId CHAR(14) DEFAULT substr(md5(random()::text), 1, 14) PRIMARY KEY,
+    bookEdition INT,
+    publisherId CHAR(9) NOT NULL,
+    title VARCHAR(128) NOT NULL,
+    salePrice FLOAT DEFAULT 0,
+    quantity INT DEFAULT 0,
+    isHide BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE author_book(
-	authorId CHAR(16),
-	bookId CHAR(16),
-	PRIMARY KEY (authorId, bookId)
+-- Bảng Mối Quan Hệ Tác Giả - Sách
+CREATE TABLE author_book (
+    authorId CHAR(16),
+    bookId CHAR(14),
+    PRIMARY KEY (authorId, bookId)
 );
 
-CREATE TABLE book_category(
-	genreId CHAR(3),
-	bookId CHAR(16),
-	PRIMARY KEY (genreId, bookId)
+-- Bảng Mối Quan Hệ Thể Loại - Sách
+CREATE TABLE book_category (
+    genreId CHAR(3),
+    bookId CHAR(14),
+    PRIMARY KEY (genreId, bookId)
 );
 
-CREATE TABLE invoice(
-	invoiceId CHAR(15) DEFAULT substr(md5(random()::text), 1, 15) PRIMARY KEY,
-	empId CHAR(16),
-	memberId CHAR(16) NOT NULL,
-	saleDate Date NOT NULL,
-	total FLOAT DEFAULT 0
+-- Bảng Hóa Đơn Mua
+CREATE TABLE invoice (
+    invoiceId CHAR(15) DEFAULT substr(md5(random()::text), 1, 15) PRIMARY KEY,
+    empId CHAR(16),
+    memberId CHAR(16) NOT NULL,
+    saleDate DATE NOT NULL,
+    total FLOAT DEFAULT 0
 );
 
-CREATE TABLE invoice_detail(
-	invoiceId CHAR(15),
-	bookId CHAR(14),
-	quantity INT,
-	cost FLOAT,
-	PRIMARY KEY (invoiceId, bookId)
+-- Bảng Chi Tiết Hóa Đơn
+CREATE TABLE invoice_detail (
+    invoiceId CHAR(15),
+    bookId CHAR(14),
+    quantity INT,
+    cost FLOAT,
+    PRIMARY KEY (invoiceId, bookId)
 );
+
+-- Bảng Phiếu Mượn/Trả Sách
+CREATE TABLE borrow_transactions (
+    transaction_id CHAR(16) DEFAULT substr(md5(random()::text), 1, 16) PRIMARY KEY,
+    member_id CHAR(16) NOT NULL,
+    borrow_date DATE NOT NULL,
+    expected_return_date DATE NOT NULL,
+    actual_return_date DATE,
+    penalty FLOAT DEFAULT 0,
+    FOREIGN KEY (member_id) REFERENCES member(memberId)
+);
+
+-- Bảng Sách Mượn (Mối Quan Hệ Phiếu Mượn và Sách)
+CREATE TABLE borrowed_books (
+    transaction_id CHAR(16),
+    book_id CHAR(14),
+    PRIMARY KEY (transaction_id, book_id),
+    FOREIGN KEY (transaction_id) REFERENCES borrow_transactions(transaction_id),
+    FOREIGN KEY (book_id) REFERENCES book(bookId)
+);
+
+-- Bảng Sách Mất
+CREATE TABLE lost_books (
+    transaction_id CHAR(16),
+    book_id CHAR(14),
+    penalty FLOAT DEFAULT 0,
+    PRIMARY KEY (transaction_id, book_id),
+    FOREIGN KEY (transaction_id) REFERENCES borrow_transactions(transaction_id),
+    FOREIGN KEY (book_id) REFERENCES book(bookId)
+);
+
 
 
 ALTER TABLE sheet ADD CONSTRAINT sheet_emp FOREIGN KEY (responsible) REFERENCES employee(empId);
@@ -677,6 +729,66 @@ BEGIN
 	VALUES (_invoiceId, _bookId, _quantity);
 END;
 $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION trg_after_invoiceDetail_add()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE book
+    SET quantity = quantity - NEW.quantity
+    WHERE bookId = NEW.bookId;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trg_after_invoiceDetail_add
+AFTER INSERT ON invoice_detail
+FOR EACH ROW
+EXECUTE FUNCTION trg_after_invoiceDetail_add();
+
+
+ALTER TABLE employee ADD CONSTRAINT CHECK_GENRE_1 CHECK(gender IN ('male', 'female'));
+ALTER TABLE member ADD CONSTRAINT CHECK_GENRE_2 CHECK(gender IN ('male', 'female'));
+ALTER TABLE author ADD CONSTRAINT CHECK_GENRE_3 CHECK(gender IN ('male', 'female'));
+ALTER TABLE administrator ADD CONSTRAINT CHECK_GENRE_4 CHECK(gender IN ('male', 'female'));
+
+ALTER TABLE employee ADD CONSTRAINT CHECK_AGE_1 CHECK(DOB < CURRENT_DATE);
+ALTER TABLE member ADD CONSTRAINT CHECK_AGE_2 CHECK(DOB < CURRENT_DATE);
+ALTER TABLE administrator ADD CONSTRAINT CHECK_AGE_3 CHECK(DOB < CURRENT_DATE);
+
+CREATE OR REPLACE FUNCTION calculate_penalty()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.actual_return_date > NEW.expected_return_date THEN
+        UPDATE borrow_transactions
+        SET penalty = (NEW.actual_return_date - NEW.expected_return_date) * 5000
+        WHERE transaction_id = NEW.transaction_id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER after_return_book
+AFTER UPDATE OF actual_return_date ON borrow_transactions
+FOR EACH ROW
+EXECUTE FUNCTION calculate_penalty();
+
+-- Trigger Tính Phạt Sách Mất
+CREATE OR REPLACE FUNCTION calculate_lost_penalty()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE lost_books
+    SET penalty = (SELECT salePrice * 2 FROM book WHERE bookId = NEW.book_id)
+    WHERE transaction_id = NEW.transaction_id AND book_id = NEW.book_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER after_lost_book
+AFTER INSERT ON lost_books
+FOR EACH ROW
+EXECUTE FUNCTION calculate_lost_penalty();
+
 
 DO $$ 
 DECLARE 
